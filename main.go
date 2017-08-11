@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 )
 
 var (
@@ -36,6 +37,7 @@ func (a *App) readAndLog(r io.Reader) {
 }
 
 func (a *App) Start(exitch chan struct{}, wg *sync.WaitGroup) error {
+	a.Cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	stdout, _ := a.Cmd.StdoutPipe()
 	stderr, _ := a.Cmd.StderrPipe()
 	err := a.Cmd.Start()
@@ -62,7 +64,7 @@ func (a *App) Start(exitch chan struct{}, wg *sync.WaitGroup) error {
 }
 
 func (a *App) Kill() {
-	a.Cmd.Process.Kill()
+	syscall.Kill(-a.Cmd.Process.Pid, syscall.SIGKILL)
 }
 
 func scanapps(dir string) ([]*App, error) {
