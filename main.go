@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 )
 
 var (
@@ -105,7 +106,7 @@ func main() {
 	}
 
 	intch := make(chan os.Signal)
-	signal.Notify(intch, os.Interrupt, os.Kill)
+	signal.Notify(intch, os.Interrupt, os.Kill, syscall.SIGTERM)
 
 	select {
 	case <-exitch:
